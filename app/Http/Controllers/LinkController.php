@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\LinkResource;
 use App\Link;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class LinkController extends Controller
 {
@@ -36,30 +37,41 @@ class LinkController extends Controller
      */
     public function store(Request $request)
     {
+        if (!$request->url) {
+            return response()->json([
+                'error' => 'url is not present'
+            ], 400); 
+        }
+
+        $shortcodeExist = DB::table('links')->where('shortcode', $request->shortcode)->first();
+        if ($shortcodeExist != null) {
+            return response()->json([
+                'error' => 'The the desired shortcode is already in use.'
+            ], 409);
+        }
         
         $link = new Link;
         $link->url = $request->input('url');
-        $link->shortcode = '';
-        if (!$request->shortcode) {
+
+        if ($request->shortcode) {
+            $res = preg_match('/^[0-9a-zA-Z_]{6}$/', $request->shortcode);
+            if($res == 0) {
+                return response()->json([
+                    'error' => 'The shortcode fails to meet the following regexp: ^[0-9a-zA-Z_]{4,}$.'
+                ], 422);
+            }
+            $link->shortcode = $request->shortcode;
+        } else {
             $allowedChars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';   
             $randomChar = substr(str_shuffle($allowedChars), 0, 6);
-            $res = preg_match('/^[0-9a-zA-Z_]{6}$/', $randomChar);
-            
-            while($res != 1) {
-                $res = preg_match('/^[0-9a-zA-Z_]{6}$/', $randomChar);
-            }
-
             $link->shortcode = $randomChar;
-        } else {
-            $link->shortcode = $request->shortcode;
         }
 
         $link->save();
 
         return response()->json([
-            $link->url,
             $link->shortcode
-        ]);
+        ], 201);
     }
 
     /**
