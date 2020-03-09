@@ -4,19 +4,30 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\LinkResource;
 use App\Link;
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Symfony\Component\Console\Helper\Table;
+use App\Http\Services\LinkService;
 
 class LinkController extends Controller
 {
+
+    public function __construct()
+    {
+        $this->service = new LinkService();
+    }
+
+
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
+     * @param  \Illuminate\Http\Request  $request
      */
-    public function index()
+    public function index(Request $request)
     {
-        
+
     }
 
     /**
@@ -74,15 +85,35 @@ class LinkController extends Controller
         ], 201);
     }
 
+    public function showShortcode($code, Request $request)
+    {
+        $data = $this->service->something();
+        dd($data);
+
+        $shortcode = DB::table('links')->where('shortcode', $code)->first();        
+        $urlRedirect = 'http://' . $shortcode->url;
+
+        if (!$shortcode) {
+            return response()->json([
+                'error' => 'The shortcode cannot be found in the system'
+            ], 404);
+        }
+
+        DB::table('links')->where('shortcode', $code)->increment('redirectCount', 1);
+
+        return redirect($urlRedirect, 302);
+
+    }
+
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Request $request)
     {
-        //
+        
     }
 
     /**
@@ -118,4 +149,39 @@ class LinkController extends Controller
     {
         //
     }
+    
+    public function showStats($code, Request $request)
+    {
+        $shortcode = DB::table('links')->where('shortcode', $code)->first();
+
+        if (!$shortcode) {
+            return response()->json([
+                'error' => 'The shortcode cannot be found in the system'
+            ], 404);
+        }
+
+        return response()->json((object) [
+            'startDate' => $shortcode->created_at,
+            'lastSeenDate' => $shortcode->updated_at,
+            'redirectCount' => $shortcode->redirectCount
+        ], 200);
+        
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     * @param  \Illuminate\Http\Request  $request
+     */
+    public function fetchAShortcode(Request $request)
+    {
+        $shortcode = DB::table('links')->where('shortcode', $request->shortcode)->first();
+        return response()->json((object)[
+            'startDate' => $shortcode->created_at,
+            'lastSeenDate' => $shortcode->updated_at,
+            'redirectCount' => $shortcode->redirectCount
+        ],200);
+    }
+
 }

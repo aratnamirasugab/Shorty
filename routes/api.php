@@ -19,6 +19,8 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('/:shortcode', 'LinkController@index');
-Route::get('/:shortcode/stats', 'LinkController@show');
 Route::post('/shorten', 'LinkController@store');
+Route::get('/{shortcode}', 'LinkController@showShortcode');
+Route::get('/{shortcode}/stats', 'LinkController@showStats');
+
+Route::get('/fetchShortcode', 'LinkController@fetchAShortcode');
