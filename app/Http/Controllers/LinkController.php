@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\LinkResource;
+use App\Http\Repositories\LinkRepository;
 use App\Link;
-use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Symfony\Component\Console\Helper\Table;
 use App\Http\Services\LinkService;
+use Illuminate\Support\Facades\Validator;
 
 class LinkController extends Controller
 {
@@ -16,6 +15,7 @@ class LinkController extends Controller
     public function __construct()
     {
         $this->service = new LinkService();
+        $this->repository = new LinkRepository();
     }
 
 
@@ -48,61 +48,41 @@ class LinkController extends Controller
      */
     public function store(Request $request)
     {
-        if (!$request->url) {
-            return response()->json([
-                'error' => 'url is not present'
-            ], 400); 
-        }
+        $messages = [
+            'url.required' => 'url is needed.',
+            'shortcode.regex' => 'The shortcode fails to meet the following regexp: ^[0-9a-zA-Z_]{4,}$.'
+        ];
 
-        $shortcodeExist = DB::table('links')->where('shortcode', $request->shortcode)->first();
-        if ($shortcodeExist != null) {
+        $validator = Validator::make($request->all(), [
+            'url' => 'required|string',
+            'shortcode' => 'sometimes|required|regex:/^[0-9a-zA-Z_]{6}$/',
+        ], $messages);
+
+        if ($validator->fails()) {
             return response()->json([
-                'error' => 'The the desired shortcode is already in use.'
-            ], 409);
+                'error' => $validator->errors()->first()
+            ], 400);
         }
         
-        $link = new Link;
-        $link->url = $request->input('url');
-
-        if ($request->shortcode) {
-            $res = preg_match('/^[0-9a-zA-Z_]{6}$/', $request->shortcode);
-            if($res == 0) {
-                return response()->json([
-                    'error' => 'The shortcode fails to meet the following regexp: ^[0-9a-zA-Z_]{4,}$.'
-                ], 422);
-            }
-            $link->shortcode = $request->shortcode;
-        } else {
-            $allowedChars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';   
-            $randomChar = substr(str_shuffle($allowedChars), 0, 6);
-            $link->shortcode = $randomChar;
-        }
-
-        $link->save();
+        $result = $this->service->store($request->shortcode, $request->url);
 
         return response()->json([
-            $link->shortcode
-        ], 201);
+            $result
+        ], $result->status_code);
     }
 
     public function showShortcode($code, Request $request)
     {
-        $data = $this->service->something();
-        dd($data);
+        $urlRedirect = $this->service->addHttpUrl($code);
 
-        $shortcode = DB::table('links')->where('shortcode', $code)->first();        
-        $urlRedirect = 'http://' . $shortcode->url;
-
-        if (!$shortcode) {
+        if (!$urlRedirect) {
             return response()->json([
                 'error' => 'The shortcode cannot be found in the system'
             ], 404);
         }
 
-        DB::table('links')->where('shortcode', $code)->increment('redirectCount', 1);
-
+        $this->service->incrementCounter($code);
         return redirect($urlRedirect, 302);
-
     }
 
     /**
@@ -152,7 +132,7 @@ class LinkController extends Controller
     
     public function showStats($code, Request $request)
     {
-        $shortcode = DB::table('links')->where('shortcode', $code)->first();
+        $shortcode = $this->service->findShortcode($code);
 
         if (!$shortcode) {
             return response()->json([
@@ -166,22 +146,6 @@ class LinkController extends Controller
             'redirectCount' => $shortcode->redirectCount
         ], 200);
         
-    }
-
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     * @param  \Illuminate\Http\Request  $request
-     */
-    public function fetchAShortcode(Request $request)
-    {
-        $shortcode = DB::table('links')->where('shortcode', $request->shortcode)->first();
-        return response()->json((object)[
-            'startDate' => $shortcode->created_at,
-            'lastSeenDate' => $shortcode->updated_at,
-            'redirectCount' => $shortcode->redirectCount
-        ],200);
     }
 
 }
