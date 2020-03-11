@@ -24,11 +24,6 @@ class LinkService {
         return $shortcode;
     }
 
-    public function incrementCounter($code)
-    {
-        $this->repository->addRedirectCountByOne($code);
-    }
-
     public function generateRandomChar()
     {
         $allowedChars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';   
@@ -59,14 +54,14 @@ class LinkService {
             ];
         }
         
-        // if valid, insert to db
+        // if valid, insert to db\
         $result = $this->repository->addNewShortcode($url, $shortcode);
 
         // if successs insert to db, return response success
         if ($result > 0)
         {
             return [
-                'message' => 'success',
+                'message' => $shortcode,
                 'status_code' => 201
             ];
         } else {
@@ -76,8 +71,5 @@ class LinkService {
             ];
         }
     }
-    
-
-
 
 }

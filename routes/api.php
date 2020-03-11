@@ -1,8 +1,6 @@
 <?php
 
-use Dotenv\Regex\Regex;
 use Illuminate\Http\Request;
-use PHPUnit\Framework\Constraint\RegularExpression;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,5 +20,3 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::post('/shorten', 'LinkController@store');
 Route::get('/{shortcode}', 'LinkController@showShortcode');
 Route::get('/{shortcode}/stats', 'LinkController@showStats');
-
-Route::get('/fetchShortcode', 'LinkController@fetchAShortcode');

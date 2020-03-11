@@ -3,9 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Repositories\LinkRepository;
-use App\Link;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use App\Http\Services\LinkService;
 use Illuminate\Support\Facades\Validator;
 
@@ -18,39 +16,11 @@ class LinkController extends Controller
         $this->repository = new LinkRepository();
     }
 
-
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     * @param  \Illuminate\Http\Request  $request
-     */
-    public function index(Request $request)
-    {
-
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
         $messages = [
-            'url.required' => 'url is needed.',
-            'shortcode.regex' => 'The shortcode fails to meet the following regexp: ^[0-9a-zA-Z_]{4,}$.'
+            'url.required' => 'url is not present',
+            'shortcode.regex' => 'The shortcode fails to meet the following regexp: ^[0-9a-zA-Z_]{6}$.'
         ];
 
         $validator = Validator::make($request->all(), [
@@ -67,11 +37,11 @@ class LinkController extends Controller
         $result = $this->service->store($request->shortcode, $request->url);
 
         return response()->json([
-            $result
+            'shortcode' => $result['message']
         ], $result['status_code']);
     }
 
-    public function showShortcode($code, Request $request)
+    public function showShortcode($code)
     {
         $urlRedirect = $this->service->addHttpUrl($code);
 
@@ -81,56 +51,13 @@ class LinkController extends Controller
             ], 404);
         }
 
-        $this->service->incrementCounter($code);
+        $this->repository->addRedirectCountByOne($code);
+        $this->repository->updateUpdatedAt($code);
+
         return redirect($urlRedirect, 302);
     }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Request $request)
-    {
-        
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
-    }
     
-    public function showStats($code, Request $request)
+    public function showStats($code)
     {
         $shortcode = $this->service->findShortcode($code);
 
