@@ -68,7 +68,7 @@ class LinkController extends Controller
 
         return response()->json([
             $result
-        ], $result->status_code);
+        ], $result['status_code']);
     }
 
     public function showShortcode($code, Request $request)

@@ -46,7 +46,7 @@ class LinkService {
     {
         if (empty($shortcode)) {
             // generate new
-            
+            $shortcode = $this->generateRandomChar();
         }
 
         // check regex
