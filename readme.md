@@ -1,29 +1,3 @@
-Shorty Challenge
-================
-
-## The Challenge
-
-The challenge, if you choose to accept it, is to create a micro service to shorten urls, in the style that TinyURL and bit.ly made popular.
-
-## Acceptance Criteria
-
-1. The service must expose HTTP endpoints according to the definition below.
-2. The service must be self contained in a Docker image, but it must be possible to set it up from a fresh install of Ubuntu Server latest LTS, by following the steps you write in the README.
-3. It must be well tested, it must also be possible to run the entire test suit with a single command from the directory of your repository.
-4. The service must be versioned using git and git history **should** be meaningful.
-5. You don't have to use a datastore, you can have all data in memory, but you are free if you wanto do use one.
-
-## Tips
-
-* Less is more, small is beautiful, you know the drill — stick to the requirements.
-* Use the right tool for the job.
-* No need to take care of domains, that's for a reverse proxy to handle.
-* Unit tests > Integration tests, but be careful with untested parts of the system.
-
-**Good Luck!** — not that you need any ;)
-
--------------------------------------------------------------------------
-
 ## API Documentation
 
 **All responses must be encoded in JSON and have the appropriate Content-Type header**
