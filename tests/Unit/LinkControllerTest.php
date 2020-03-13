@@ -45,8 +45,10 @@ class LinkControllerTest extends TestCase
         $this->assertEquals(404, $status_code);
     }
 
-    
+    // public function test_should_return_400_store()
+    // {
 
+    // }
 
 
 }

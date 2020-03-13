@@ -22,8 +22,13 @@ class LinkService {
 
     public function findShortcode($code)
     {
-        return $this->repository->searchShortcode($code);
-    }
+        $dataRetrieved = $this->repository->searchShortcode($code);
+        
+        if (empty($dataRetrieved)) {
+            return '';
+        }
+        return $dataRetrieved;
+    }   
 
     public function generateRandomChar()
     {
