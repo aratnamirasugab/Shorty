@@ -13,15 +13,16 @@ class LinkService {
 
     public function addHttpUrl($code)
     {
-        $shortcode = $this->repository->searchShortcode($code);
-        $urlRedirect = 'http://' . $shortcode->url;
-        return $urlRedirect;
+        $urlRetrieved = $this->repository->searchShortcode($code);
+        if (empty($urlRetrieved)) {
+            return '';
+        }
+        return 'http://' . $urlRetrieved->url;
     }
 
     public function findShortcode($code)
     {
-        $shortcode = $this->repository->searchShortcode($code);
-        return $shortcode;
+        return $this->repository->searchShortcode($code);
     }
 
     public function generateRandomChar()
@@ -40,24 +41,19 @@ class LinkService {
     public function store($shortcode, $url)
     {
         if (empty($shortcode)) {
-            // generate new
             $shortcode = $this->generateRandomChar();
         }
 
-        // check regex
         $shortcodeExist = $this->repository->searchShortcode($shortcode);
         if ($shortcodeExist != null) {
-            // if found , return response already exists
             return [
                 'message' => 'The the desired shortcode is already in use. Shortcodes are case-sensitive.',
                 'status_code' => 409
             ];
         }
         
-        // if valid, insert to db\
         $result = $this->repository->addNewShortcode($url, $shortcode);
 
-        // if successs insert to db, return response success
         if ($result > 0)
         {
             return [

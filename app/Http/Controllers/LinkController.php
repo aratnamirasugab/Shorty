@@ -45,7 +45,7 @@ class LinkController extends Controller
     {
         $urlRedirect = $this->service->addHttpUrl($code);
 
-        if (!$urlRedirect) {
+        if ($urlRedirect == '') {
             return response()->json([
                 'error' => 'The shortcode cannot be found in the system'
             ], 404);
