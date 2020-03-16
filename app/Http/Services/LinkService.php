@@ -33,14 +33,12 @@ class LinkService {
     public function generateRandomChar()
     {
         $allowedChars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';   
-        $randomChar = substr(str_shuffle($allowedChars), 0, 6);
-        return $randomChar;
+        return substr(str_shuffle($allowedChars), 0, 6);
     }
 
     public function checkShortcodeWithRegex($shortcode)
     {
-        $res = preg_match('/^[0-9a-zA-Z_]{6}$/', $shortcode);
-        return $res;
+        return preg_match('/^[0-9a-zA-Z_]{6}$/', $shortcode);
     }
 
     public function store($shortcode, $url)

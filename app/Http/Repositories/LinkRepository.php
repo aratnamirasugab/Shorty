@@ -21,7 +21,7 @@ class LinkRepository {
 
     public function updateUpdatedAt($code)
     {
-        DB::table('links')
+        return DB::table('links')
             ->where('shortcode', $code) 
             ->update(['updated_at' => Carbon::now()]);
     }

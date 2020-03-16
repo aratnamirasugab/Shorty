@@ -3,8 +3,6 @@
 namespace Tests\Unit;
 
 use App\Http\Controllers\LinkController;
-use App\Http\Repositories\LinkRepository;
-use SplDoublyLinkedList;
 use Tests\TestCase;
 
 class LinkControllerTest extends TestCase
@@ -44,11 +42,5 @@ class LinkControllerTest extends TestCase
         
         $this->assertEquals(404, $status_code);
     }
-
-    // public function test_should_return_400_store()
-    // {
-
-    // }
-
 
 }

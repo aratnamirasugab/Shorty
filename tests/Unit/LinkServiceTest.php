@@ -4,8 +4,6 @@ namespace Tests\Unit;
 
 use App\Http\Services\LinkService;
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class LinkServiceTest extends TestCase
 {
@@ -13,7 +11,6 @@ class LinkServiceTest extends TestCase
     {
         $code = 'aaaaaa';
         $service = new LinkService();
-
         $this->assertContains('http', $service->addHttpUrl($code));
     }
 
@@ -21,7 +18,6 @@ class LinkServiceTest extends TestCase
     {
         $code = 'dowkdowokodw';
         $service = new LinkService();
-
         $this->assertEmpty($service->addHttpUrl($code));
     }
 
@@ -29,7 +25,6 @@ class LinkServiceTest extends TestCase
     {
         $code = 'aaaaaa';
         $service = new LinkService();
-
         $this->assertObjectHasAttribute('id', $service->findShortcode($code));
     }
 
@@ -37,8 +32,29 @@ class LinkServiceTest extends TestCase
     {
         $code = 'mokdowdw';
         $service = new LinkService();
-
         $this->assertEmpty($service->findShortcode($code));
     }
+
+    public function test_should_return_random_char()
+    {
+        $service = new LinkService();
+        $random = $service->generateRandomChar();
+        $this->assertRegExp('/^[0-9a-zA-Z_]{6}$/', $random);
+    }
+
+    public function test_should_1_check_with_regex()
+    {
+        $shortcode = 'aaaaaa';
+        $service = new LinkService();
+        $this->assertEquals(1, $service->checkShortcodeWithRegex($shortcode));
+    }
+
+    // public function test_store()
+    // {
+    //     $service = new LinkService();
+        
+
+    // }
+
 
 }
